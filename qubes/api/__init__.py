@@ -166,6 +166,10 @@ class AbstractQubesAPI:
 
         #: argument
         self.arg = arg.decode("ascii")
+        # Validate arg: must only contain characters allowed by qrexec
+        # See sanitize_name() in qrexec-daemon.c
+        if self.arg and not re.match(r"\A[\w.-]+\Z", self.arg):
+            raise ProtocolError(f"arg not allowed in qrexec: {self.arg!r}")
 
         #: name of the method
         self.method = method_name.decode("ascii")
@@ -232,7 +236,7 @@ class AbstractQubesAPI:
             pre_event=True,
             dest=self.dest,
             arg=self.arg,
-            **kwargs
+            **kwargs,
         )
 
     def fire_event_for_filter(self, iterable, **kwargs):

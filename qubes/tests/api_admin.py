@@ -1694,6 +1694,27 @@ netvm default=True type=vm \n"""
             )
         self.assertFalse(self.app.save.called)
 
+    def test_302_feature_remove_invalid_name(self):
+        # Invalid feature names must raise ProtocolError before any action
+        with self.assertRaises(qubes.exc.ProtocolError):
+            self.call_mgmt_func(
+                b"admin.vm.feature.Remove",
+                b"test-vm1",
+                b"../../../root/gotcha",
+            )
+        self.assertFalse(self.app.save.called)
+
+    def test_302b_feature_set_invalid_name(self):
+        # Invalid feature names must raise ProtocolError in vm_feature_set
+        with self.assertRaises(qubes.exc.ProtocolError):
+            self.call_mgmt_func(
+                b"admin.vm.feature.Set",
+                b"test-vm1",
+                b"../../../root/gotcha",
+                b"some-value",
+            )
+        self.assertFalse(self.app.save.called)
+
     def test_303_feature_prohibited(self):
         del self.app.domains[0].fire_event
         feature = qubes.ext.admin.PROHIBITED_FEATURES[0]
